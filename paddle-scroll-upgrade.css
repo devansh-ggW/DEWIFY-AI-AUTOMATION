@@ -1,0 +1,180 @@
+/* Lightweight motion-graphics treatment for sections after the hero film. */
+:root {
+  --dewify-cinema-accent: #8f82ff;
+  --dewify-cinema-ink: #080a0f;
+}
+
+.cinema-scroll-progress {
+  position: fixed;
+  z-index: 10010;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  pointer-events: none;
+  background: rgba(143, 130, 255, .12);
+}
+
+.cinema-scroll-progress > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #8f82ff, #d5cfff 55%, #e9e5ff);
+  will-change: transform;
+}
+
+.localized-price-block {
+  display: grid;
+  gap: 5px;
+  margin: 23px 0 25px;
+  padding: 17px 18px 16px;
+  border: 1px solid rgba(100, 86, 222, .24);
+  background: linear-gradient(130deg, rgba(143, 130, 255, .09), rgba(255, 255, 255, .42));
+}
+
+.localized-price-kicker {
+  color: #6456de;
+  font: 700 .58rem/1.4 var(--mono, monospace);
+  letter-spacing: .14em;
+}
+
+.localized-price-value {
+  color: var(--text, #171a20);
+  font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+  font-weight: 650;
+  letter-spacing: -.065em;
+  line-height: 1.03;
+  font-variant-numeric: tabular-nums;
+}
+
+.localized-price-note {
+  max-width: 40ch;
+  color: var(--muted, #747985);
+  font-size: .71rem;
+  line-height: 1.5;
+}
+
+.js-inline-local-price {
+  display: inline-block;
+  margin-left: .38em;
+  font-size: .72em;
+  font-weight: 650;
+  letter-spacing: -.015em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dewify-toast {
+  position: fixed;
+  z-index: 10020;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  width: min(420px, calc(100vw - 32px));
+  padding: 15px 18px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  color: #fffdf8;
+  background: rgba(8, 10, 15, .96);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .22);
+  font-size: .84rem;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 12px, 0);
+  transition: opacity .18s ease, transform .22s ease;
+}
+
+.dewify-toast.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Scroll reveal: opacity and transforms stay compositor-friendly. */
+.cinema-enhanced .cinema-reveal {
+  --cinema-reveal-offset: 26px;
+  opacity: 0;
+  transform: translate3d(0, calc(var(--cinema-reveal-offset) + var(--cinema-y, 0px)), 0);
+  transition:
+    opacity .62s cubic-bezier(.2, .72, .25, 1) var(--cinema-delay, 0ms),
+    transform .78s cubic-bezier(.2, .72, .25, 1) var(--cinema-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.cinema-enhanced .cinema-reveal.is-in-view {
+  --cinema-reveal-offset: 0px;
+  opacity: 1;
+}
+
+.cinema-enhanced .cinema-parallax:not(.cinema-reveal) {
+  transform: translate3d(0, var(--cinema-y, 0px), 0);
+}
+
+/* Extra editorial depth without animating expensive filters or giant shadows. */
+.cinema-enhanced .product-artwork {
+  transform-origin: 50% 40%;
+}
+
+.cinema-enhanced .file-tree--large {
+  transition: border-color .3s ease, background-color .3s ease;
+}
+
+.cinema-enhanced .workflow-steps article {
+  transition: background-color .25s ease;
+}
+
+.cinema-enhanced .workflow-steps article:hover {
+  background: rgba(143, 130, 255, .035);
+}
+
+.cinema-enhanced .faq-list details summary {
+  transition: color .2s ease;
+}
+
+.cinema-enhanced .faq-list details summary:hover {
+  color: #6456de;
+}
+
+
+/* Modern browsers get a genuine scroll-linked timeline: content resolves into
+   view, holds while readable, then leaves like a scene in an editorial film.
+   The IntersectionObserver treatment above remains the fallback. */
+@supports (animation-timeline: view()) {
+  .cinema-enhanced .cinema-reveal {
+    animation-name: dewify-scroll-scene;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+    transition: none;
+  }
+
+  @keyframes dewify-scroll-scene {
+    0% { opacity: 0; transform: translate3d(0, 34px, 0) scale(.99); }
+    14% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    82% { opacity: 1; transform: translate3d(0, -5px, 0) scale(1); }
+    100% { opacity: 0; transform: translate3d(0, -22px, 0) scale(.995); }
+  }
+}
+
+@media (max-width: 720px) {
+  .localized-price-block { margin: 20px 0 23px; padding: 15px; }
+  .localized-price-value { font-size: clamp(1.8rem, 8vw, 2.5rem); }
+  .js-inline-local-price { margin-left: .22em; font-size: .65em; }
+  .cinema-enhanced .cinema-reveal { --cinema-reveal-offset: 17px; transition-duration: .42s, .48s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinema-scroll-progress { display: none; }
+  .dewify-toast { transition: none; transform: none; }
+  .cinema-enhanced .cinema-reveal,
+  .cinema-enhanced .cinema-reveal.is-in-view,
+  .cinema-enhanced .cinema-parallax,
+  .cinema-enhanced .cinema-parallax:not(.cinema-reveal) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}
